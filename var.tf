@@ -7,7 +7,7 @@ variable "region" {
 variable "cluster_name" {
   description = "EKS cluster name"
   type        = string
-  default     = "eks-default-cluster"
+  default     = "eks-default-cluster-DR"
 }
 
 variable "node_instance_type" {
