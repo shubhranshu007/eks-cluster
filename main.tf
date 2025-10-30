@@ -14,7 +14,7 @@ data "aws_subnets" "default" {
   # Exclude unsupported AZ (us-east-1e)
   filter {
     name   = "availability-zone"
-    values = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    values = ["us-west-2a", "us-west-2b", "us-west-2c"]
   }
 }
 
