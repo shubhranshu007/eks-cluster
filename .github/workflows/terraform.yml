@@ -1,0 +1,61 @@
+name: Terraform Deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write  # Required for OIDC authentication
+
+jobs:
+  terraform:
+    name: Terraform Plan & Apply
+    runs-on: ubuntu-latest
+
+    steps:
+      # 🪣 Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 🔐 Step 2: Configure AWS Credentials (via OIDC or secrets)
+      # Option 1: Recommended (OIDC Role)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::571600863856:role/github-eks-oidc-role
+          aws-region: us-east-1
+
+      # Option 2: Alternative (Static Access Keys)
+      # Uncomment if not using OIDC:
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v3
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ap-south-1
+
+      # ⚙️ Step 3: Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.5
+
+      # 🧱 Step 4: Initialize Terraform Backend (S3 + DynamoDB)
+      - name: Terraform Init
+        run: terraform init
+
+      # 🧩 Step 5: Validate Terraform Code
+      - name: Terraform Validate
+        run: terraform validate
+
+      # 🔍 Step 6: Terraform Plan (preview changes)
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan.out
+
+      # 🚀 Step 7: Terraform Apply (only for main branch)
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan.out
