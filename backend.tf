@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
     bucket         = "terraform-state-fruitcombo"
-    key            = "bucket-terraform-demo-statefile/terraform.tfstate"
-    region         = "ap-south-1"
+    key            = "terraform-s3-statefile-123/terraform.tfstate"
+    region         = "us-east-1"
 #    dynamodb_table = "terraform-locks"
     encrypt        = true
   }
