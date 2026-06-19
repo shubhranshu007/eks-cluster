@@ -23,9 +23,9 @@ jobs:
 
       # Step 2: Configure AWS Credentials via OIDC
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4    # ← v4 is latest
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::699200215565:role/github-eks-oidc-role
+          role-to-assume: arn:aws:iam::699200215565:role/github-eks-oidc-role  # ← updated account ID
           aws-region: us-east-1
 
       # Step 3: Verify AWS Identity
