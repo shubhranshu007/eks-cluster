@@ -8,7 +8,8 @@ on:
 
 permissions:
   contents: read
-  id-token: write  # Required for OIDC authentication
+  id-token: write
+  pull-requests: write    # ← Add this to post plan output as PR comment
 
 jobs:
   terraform:
@@ -16,46 +17,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 🪣 Step 1: Checkout the repository
+      # Step 1: Checkout the repository
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4    # ← v4 is latest
 
-      # 🔐 Step 2: Configure AWS Credentials (via OIDC or secrets)
-      # Option 1: Recommended (OIDC Role)
+      # Step 2: Configure AWS Credentials via OIDC
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4    # ← v4 is latest
         with:
-          role-to-assume: arn:aws:iam::571600863856:role/github-eks-oidc-role
+          role-to-assume: arn:aws:iam::699200215565:role/github-eks-oidc-role
           aws-region: us-east-1
 
-      # Option 2: Alternative (Static Access Keys)
-      # Uncomment if not using OIDC:
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v3
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ap-south-1
+      # Step 3: Verify AWS Identity
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity    # ← confirms OIDC is working
 
-      # ⚙️ Step 3: Setup Terraform
+      # Step 4: Setup Terraform
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3    # ← v3 is latest
         with:
-          terraform_version: 1.8.5
+          terraform_version: 1.9.0    # ← latest stable
 
-      # 🧱 Step 4: Initialize Terraform Backend (S3 + DynamoDB)
+      # Step 5: Terraform Init
       - name: Terraform Init
         run: terraform init
 
-      # 🧩 Step 5: Validate Terraform Code
+      # Step 6: Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
-      # 🔍 Step 6: Terraform Plan (preview changes)
+      # Step 7: Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan.out
 
-      # 🚀 Step 7: Terraform Apply (only for main branch)
+      # Step 8: Show Plan Output
+      - name: Terraform Show
+        run: terraform show -no-color tfplan.out    # ← human readable plan
+
+      # Step 9: Terraform Apply (main branch only)
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'    # ← safer condition
         run: terraform apply -auto-approve tfplan.out
