@@ -100,6 +100,7 @@ jobs:
           role-to-assume: arn:aws:iam::699200215565:role/github-eks-oidc-role
           aws-region: us-east-1
 
+
       # Step 3: Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
