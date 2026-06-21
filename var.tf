@@ -19,5 +19,5 @@ variable "node_instance_type" {
 variable "eks_version" {
   description = "EKS Kubernetes version"
   type        = string
-  default     = "1.36"
+  default     = "1.34"
 }
