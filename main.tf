@@ -107,7 +107,7 @@ resource "aws_eks_node_group" "node_group" {
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = data.aws_subnets.default.ids
   instance_types  = [var.node_instance_type]
-  version         = "1.34"
+  version         = "1.35"
 
   scaling_config {
     desired_size = 1
